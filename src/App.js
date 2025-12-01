@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import './App.css';
 import TaskForm from './components/TaskForm';
 import TaskList from './components/TaskList';
+import Login from './components/Login';
+import Signup from './components/Signup';
+import PrivateRoute from './components/PrivateRoute';
 import { getAllTasks, createTask, updateTask, deleteTask } from './services/taskService';
 
-function App() {
+function Dashboard() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editingTask, setEditingTask] = useState(null);
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     fetchTasks();
@@ -21,7 +27,7 @@ function App() {
       setTasks(data);
       setError(null);
     } catch (err) {
-      setError('Failed to fetch tasks. Make sure the backend server is running.');
+      setError('Failed to fetch tasks. Please try again.');
       console.error('Error fetching tasks:', err);
     } finally {
       setLoading(false);
@@ -72,12 +78,23 @@ function App() {
     setEditingTask(null);
   };
 
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
     <div className="App">
       <div className="container">
         <header className="app-header">
-          <h1>📋 Task Management App</h1>
-          <p>Organize and track your tasks efficiently</p>
+          <div className="header-content">
+            <div>
+              <h1>📋 Task Management App</h1>
+              <p>Welcome, {user?.name}! Organize and track your tasks efficiently</p>
+            </div>
+            <button onClick={handleLogout} className="btn-logout">
+              Logout
+            </button>
+          </div>
         </header>
 
         {error && (
@@ -104,6 +121,28 @@ function App() {
         )}
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route
+            path="/"
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
