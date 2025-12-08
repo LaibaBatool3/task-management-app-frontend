@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { getStoredUser, getUserId, logout as authLogout } from '../services/authService';
+import { getStoredUser, getToken, logout as authLogout } from '../services/authService';
 
 export const AuthContext = createContext();
 
@@ -15,10 +15,10 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const user_id = getUserId();
+    const token = getToken();
     const storedUser = getStoredUser();
     
-    if (user_id && storedUser) {
+    if (token && storedUser) {
       setUser(storedUser);
     }
     setLoading(false);

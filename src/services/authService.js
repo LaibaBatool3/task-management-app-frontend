@@ -13,8 +13,9 @@ export const register = async (userData) => {
   try {
     const response = await api.post('/register', userData);
     if (response.data.data) {
-      localStorage.setItem('user_id', response.data.data.id);
-      localStorage.setItem('user', JSON.stringify(response.data.data));
+      localStorage.setItem('token', response.data.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.data.user));
+      localStorage.setItem('user_id', response.data.data.user.id);
     }
     return response.data.data;
   } catch (error) {
@@ -32,12 +33,12 @@ export const login = async (credentials) => {
   try {
     const response = await api.post('/login', credentials);
     if (response.data.data) {
-      localStorage.setItem('user_id', response.data.data.id);
-      localStorage.setItem('user', JSON.stringify(response.data.data));
+      localStorage.setItem('token', response.data.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.data.user));
+      localStorage.setItem('user_id', response.data.data.user.id);
     }
     return response.data.data;
   } catch (error) {
-    
     if (error.response) {
       throw new Error(error.response.data?.message || 'Invalid email or password');
     } else if (error.request) {
@@ -49,8 +50,13 @@ export const login = async (credentials) => {
 };
 
 export const logout = () => {
+  localStorage.removeItem('token');
   localStorage.removeItem('user_id');
   localStorage.removeItem('user');
+};
+
+export const getToken = () => {
+  return localStorage.getItem('token');
 };
 
 export const getUserId = () => {
